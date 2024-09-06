@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id         String   @id @unique @db.Uuid()
+  first_name String
+  last_name  String
+  username   String   @unique
+  password   String
+  email      String   @unique
+  role       Role
+  Rutine     Rutine[]
+  Log        Log[]
+}
+
+model Rutine {
+  id             String           @id @unique @db.Uuid()
+  user_id        String
+  user           User             @relation(fields: [user_id], references: [id])
+  start          DateTime         @db.Timestamp()
+  end            DateTime         @db.Timestamp()
+  RutineExercise RutineExercise[]
+}
+
+model Muscle {
+  id        String      @id @unique @db.Uuid()
+  name      String
+  Excercise Excercise[]
+}
+
+model Excercise {
+  id             String           @id @unique @db.Uuid()
+  name           String
+  muscle_id      String
+  muscle         Muscle           @relation(fields: [muscle_id], references: [id])
+  preview_link   String?
+  RutineExercise RutineExercise[]
+}
+
+model RutineExercise {
+  id          String    @id @unique @db.Uuid()
+  rutine_id   String
+  rutine      Rutine    @relation(fields: [rutine_id], references: [id])
+  exercise_id String
+  exercise    Excercise @relation(fields: [exercise_id], references: [id])
+  weekday     Int       @db.SmallInt()
+}
+
+model Log {
+  id          String   @id @unique @db.Uuid()
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
+  description String
+  timestamp   DateTime @default(now()) @db.Timestamp()
+}
