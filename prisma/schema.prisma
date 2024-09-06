@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -13,7 +14,7 @@ enum Role {
 }
 
 model User {
-  id         String   @id @unique @db.Uuid()
+  id         String   @id @db.Uuid()
   first_name String
   last_name  String
   username   String   @unique
@@ -25,8 +26,8 @@ model User {
 }
 
 model Rutine {
-  id             String           @id @unique @db.Uuid()
-  user_id        String
+  id             String           @id @db.Uuid()
+  user_id        String           @db.Uuid()
   user           User             @relation(fields: [user_id], references: [id])
   start          DateTime         @db.Timestamp()
   end            DateTime         @db.Timestamp()
@@ -34,32 +35,32 @@ model Rutine {
 }
 
 model Muscle {
-  id        String      @id @unique @db.Uuid()
+  id        String      @id @db.Uuid()
   name      String
   Excercise Excercise[]
 }
 
 model Excercise {
-  id             String           @id @unique @db.Uuid()
+  id             String           @id @db.Uuid()
   name           String
-  muscle_id      String
+  muscle_id      String           @db.Uuid()
   muscle         Muscle           @relation(fields: [muscle_id], references: [id])
   preview_link   String?
   RutineExercise RutineExercise[]
 }
 
 model RutineExercise {
-  id          String    @id @unique @db.Uuid()
-  rutine_id   String
+  id          String    @id @db.Uuid()
+  rutine_id   String    @db.Uuid()
   rutine      Rutine    @relation(fields: [rutine_id], references: [id])
-  exercise_id String
+  exercise_id String    @db.Uuid()
   exercise    Excercise @relation(fields: [exercise_id], references: [id])
   weekday     Int       @db.SmallInt()
 }
 
 model Log {
-  id          String   @id @unique @db.Uuid()
-  user_id     String
+  id          String   @id @db.Uuid()
+  user_id     String   @db.Uuid()
   user        User     @relation(fields: [user_id], references: [id])
   description String
   timestamp   DateTime @default(now()) @db.Timestamp()
