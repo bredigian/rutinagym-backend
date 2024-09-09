@@ -14,7 +14,7 @@ import { ExerciseToCreateDto } from './exercise.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { EPrismaError } from 'src/types/prisma.types';
 
-@Controller('exercise')
+@Controller('exercises')
 export class ExerciseController {
   constructor(private readonly service: ExerciseService) {}
 
@@ -22,7 +22,8 @@ export class ExerciseController {
   async getAll() {
     try {
       return await this.service.getAll();
-    } catch {
+    } catch (e) {
+      console.error(e);
       throw new ServiceUnavailableException(
         'No se ha podido establecer conexión con la base de datos.',
       );

@@ -4,6 +4,7 @@ import {
   Controller,
   NotFoundException,
   Post,
+  ServiceUnavailableException,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
@@ -39,38 +40,48 @@ export class AuthController {
       });
 
       return { access_token };
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === EPrismaError.UniqueConstraint)
+    } catch (e) {
+      console.error(e);
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === EPrismaError.UniqueConstraint)
           throw new ConflictException('El usuario ya existe.');
       }
-      throw error;
+      throw new ServiceUnavailableException(
+        'No se ha podido establecer conexión con la base de datos.',
+      );
     }
   }
 
   @Post('signin')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async signin(@Body() payload: UserToLogDto) {
-    const user = await this.service.getUserByUsername(payload.username);
-    if (!user) throw new NotFoundException('El usuario no existe.');
+    try {
+      const user = await this.service.getUserByUsername(payload.username);
+      if (!user) throw new NotFoundException('El usuario no existe.');
 
-    const passwordMatch = await this.service.verifyPassword(
-      payload.password,
-      user.password,
-    );
-    if (!passwordMatch)
-      throw new UnauthorizedException('Las credenciales son inválidas');
+      const passwordMatch = await this.service.verifyPassword(
+        payload.password,
+        user.password,
+      );
+      if (!passwordMatch)
+        throw new UnauthorizedException('Las credenciales son inválidas');
 
-    const { id, username, email, first_name, last_name, role } = user;
-    const access_token = await this.jwtService.signAsync({
-      sub: id,
-      username,
-      email,
-      first_name,
-      last_name,
-      role,
-    });
+      const { id, username, email, first_name, last_name, role } = user;
+      const access_token = await this.jwtService.signAsync({
+        sub: id,
+        username,
+        email,
+        first_name,
+        last_name,
+        role,
+      });
 
-    return { access_token };
+      return { access_token };
+    } catch (e) {
+      console.error(e);
+      throw new ServiceUnavailableException(
+        'No se ha podido establecer conexión con la base de datos.',
+      );
+    }
   }
 }

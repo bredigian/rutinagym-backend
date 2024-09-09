@@ -16,7 +16,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { EPrismaError } from 'src/types/prisma.types';
 import { UUID } from 'crypto';
 
-@Controller('rutine')
+@Controller('rutines')
 export class RutineController {
   constructor(private readonly service: RutineService) {}
 

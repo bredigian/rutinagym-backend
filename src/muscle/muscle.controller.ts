@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  InternalServerErrorException,
   Post,
+  ServiceUnavailableException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -11,7 +11,7 @@ import {
 import { MuscleService } from './muscle.service';
 import { MuscleToCreateDto } from './muscle.dto';
 
-@Controller('muscle')
+@Controller('muscles')
 export class MuscleController {
   constructor(private readonly service: MuscleService) {}
 
@@ -19,8 +19,9 @@ export class MuscleController {
   async getGroups() {
     try {
       return await this.service.getGroups();
-    } catch {
-      throw new InternalServerErrorException(
+    } catch (e) {
+      console.error(e);
+      throw new ServiceUnavailableException(
         'No se ha podido establecer conexión con la base de datos.',
       );
     }
@@ -31,8 +32,9 @@ export class MuscleController {
   async registerGroup(@Body() payload: MuscleToCreateDto) {
     try {
       return await this.service.createGroup(payload);
-    } catch {
-      throw new InternalServerErrorException(
+    } catch (e) {
+      console.error(e);
+      throw new ServiceUnavailableException(
         'No se ha podido establecer conexión con la base de datos.',
       );
     }
