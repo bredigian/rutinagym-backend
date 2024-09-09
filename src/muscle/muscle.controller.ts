@@ -6,6 +6,7 @@ import {
   ServiceUnavailableException,
   UsePipes,
   ValidationPipe,
+  Version,
 } from '@nestjs/common';
 
 import { MuscleService } from './muscle.service';
@@ -15,6 +16,7 @@ import { MuscleToCreateDto } from './muscle.dto';
 export class MuscleController {
   constructor(private readonly service: MuscleService) {}
 
+  @Version('1')
   @Get()
   async getGroups() {
     try {
@@ -27,6 +29,7 @@ export class MuscleController {
     }
   }
 
+  @Version('1')
   @Post('register')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async registerGroup(@Body() payload: MuscleToCreateDto) {

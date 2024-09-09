@@ -8,6 +8,7 @@ import {
   ServiceUnavailableException,
   UsePipes,
   ValidationPipe,
+  Version,
 } from '@nestjs/common';
 
 import { RutineService } from './rutine.service';
@@ -20,6 +21,7 @@ import { UUID } from 'crypto';
 export class RutineController {
   constructor(private readonly service: RutineService) {}
 
+  @Version('1')
   @Get(':id')
   async getAllByUserId(@Param() params: { id: UUID }) {
     try {
@@ -33,6 +35,7 @@ export class RutineController {
     }
   }
 
+  @Version('1')
   @Post()
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async register(@Body() payload: RutineToCreateDto) {

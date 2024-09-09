@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
+  Version,
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
@@ -23,6 +24,7 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
 
+  @Version('1')
   @Post('signup')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async signup(@Body() payload: UserToCreateDto) {
@@ -52,6 +54,7 @@ export class AuthController {
     }
   }
 
+  @Version('1')
   @Post('signin')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async signin(@Body() payload: UserToLogDto) {

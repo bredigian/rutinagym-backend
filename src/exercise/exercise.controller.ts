@@ -7,6 +7,7 @@ import {
   ServiceUnavailableException,
   UsePipes,
   ValidationPipe,
+  Version,
 } from '@nestjs/common';
 
 import { ExerciseService } from './exercise.service';
@@ -18,6 +19,7 @@ import { EPrismaError } from 'src/types/prisma.types';
 export class ExerciseController {
   constructor(private readonly service: ExerciseService) {}
 
+  @Version('1')
   @Get()
   async getAll() {
     try {
@@ -30,6 +32,7 @@ export class ExerciseController {
     }
   }
 
+  @Version('1')
   @Post()
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async register(@Body() payload: ExerciseToCreateDto) {
