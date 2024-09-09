@@ -21,4 +21,9 @@ export class RutineService {
       data: { user_id, start, end, RutineExercise: { create: RutineExercise } },
     });
   }
+
+  async deleteById(id: UUID) {
+    await this.prisma.rutineExercise.deleteMany({ where: { rutine_id: id } });
+    return await this.prisma.rutine.delete({ where: { id } });
+  }
 }

@@ -1,10 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
   Post,
+  Query,
   ServiceUnavailableException,
   UsePipes,
   ValidationPipe,
@@ -46,6 +49,23 @@ export class RutineController {
       if (e instanceof PrismaClientKnownRequestError)
         if (e.code === EPrismaError.ForeignKeyConstraint)
           throw new NotFoundException('El ID del usuario no está registrado.');
+      throw new ServiceUnavailableException(
+        'No se ha podido establecer conexión con la base de datos.',
+      );
+    }
+  }
+
+  @Version('1')
+  @Delete()
+  async deleteById(@Query() query: { id: UUID }) {
+    try {
+      const { id } = query;
+      if (!id)
+        throw new BadRequestException('El ID de la rutina es requerido.');
+
+      return await this.service.deleteById(id);
+    } catch (e) {
+      console.error(e);
       throw new ServiceUnavailableException(
         'No se ha podido establecer conexión con la base de datos.',
       );
