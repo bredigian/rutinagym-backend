@@ -2,6 +2,8 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
+  Headers,
   NotFoundException,
   Post,
   ServiceUnavailableException,
@@ -10,12 +12,12 @@ import {
   ValidationPipe,
   Version,
 } from '@nestjs/common';
+import { UserToCreateDto, UserToLogDto } from 'src/users/users.dto';
 
 import { AuthService } from './auth.service';
-import { UserToCreateDto, UserToLogDto } from 'src/users/users.dto';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { EPrismaError } from 'src/types/prisma.types';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Controller('auth')
 export class AuthController {
@@ -82,6 +84,26 @@ export class AuthController {
       return { access_token };
     } catch (e) {
       console.error(e);
+      if (e) throw e;
+      throw new ServiceUnavailableException(
+        'No se ha podido establecer conexión con la base de datos.',
+      );
+    }
+  }
+
+  @Version('1')
+  @Get('validate')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async validateToken(@Headers('Authorization') token: string) {
+    try {
+      const isValid = await this.jwtService.verifyAsync(token.substring(7));
+      if (!isValid)
+        throw new UnauthorizedException('El token no es válido o ya caducó.');
+
+      return isValid;
+    } catch (e) {
+      console.error(e);
+      if (e) throw e;
       throw new ServiceUnavailableException(
         'No se ha podido establecer conexión con la base de datos.',
       );
