@@ -7,6 +7,7 @@ import {
   ServiceUnavailableException,
   UsePipes,
   ValidationPipe,
+  Version,
 } from '@nestjs/common';
 
 import { ExerciseService } from './exercise.service';
@@ -14,21 +15,24 @@ import { ExerciseToCreateDto } from './exercise.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { EPrismaError } from 'src/types/prisma.types';
 
-@Controller('exercise')
+@Controller('exercises')
 export class ExerciseController {
   constructor(private readonly service: ExerciseService) {}
 
+  @Version('1')
   @Get()
   async getAll() {
     try {
       return await this.service.getAll();
-    } catch {
+    } catch (e) {
+      console.error(e);
       throw new ServiceUnavailableException(
         'No se ha podido establecer conexión con la base de datos.',
       );
     }
   }
 
+  @Version('1')
   @Post()
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async register(@Body() payload: ExerciseToCreateDto) {
